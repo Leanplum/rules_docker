@@ -258,12 +258,12 @@ def _repository_name(ctx):
     """Compute the repository name for the current rule."""
     if ctx.attr.legacy_repository_naming:
         # Legacy behavior, off by default.
-        return _join_path(ctx.attr.repository, ctx.label.package.replace("/", "_"))
+        return _join_path(ctx.attr.repository, ctx.label.package.replace("/", "_").lower())
 
     # Newer Docker clients support multi-level names, which are a part of
     # the v2 registry specification.
 
-    return _join_path(ctx.attr.repository, ctx.label.package)
+    return _join_path(ctx.attr.repository, ctx.label.package.lower())
 
 def _assemble_image_digest(ctx, name, image, image_tarball, output_digest):
     img_args, inputs = _gen_img_args(ctx, image)

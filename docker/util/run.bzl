@@ -195,7 +195,7 @@ def _commit_impl(
             "%{image_id_extractor_path}": ctx.executable._extract_image_id.path,
             "%{image_tar}": image.path,
             "%{output_image}": "bazel/%s:%s" % (
-                ctx.label.package or "default",
+                (ctx.label.package or "default").lower(),
                 name,
             ),
             "%{output_tar}": output_image_tar.path,

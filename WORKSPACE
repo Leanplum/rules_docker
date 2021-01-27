@@ -37,11 +37,6 @@ load("//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
 
-# pip deps are only needed for running tests.
-load("//repositories:pip_repositories.bzl", "pip_deps")
-
-pip_deps()
-
 load(
     "//container:container.bzl",
     "container_load",
@@ -113,7 +108,7 @@ container_pull(
 # These are for package_manager testing.
 http_file(
     name = "bazel_gpg",
-    sha256 = "30af2ca7abfb65987cd61802ca6e352aadc6129dfb5bfc9c81f16617bc3a4416",
+    sha256 = "547ec71b61f94b07909969649d52ee069db9b0c55763d3add366ca7a30fb3f6d",
     urls = ["https://bazel.build/bazel-release.pub.gpg"],
 )
 
@@ -201,8 +196,8 @@ container_pull(
 
 # This image is used by tests/contrib tests.
 container_pull(
-    name = "bazel_2000",
-    digest = "sha256:e8b0adc7d9b8cf6ef28ae8d8c575169a9affeaca89fec2fced0e38c8d08e5059",
+    name = "bazel_320",
+    digest = "sha256:08434856d8196632b936dd082b8e03bae0b41346299aedf60a0d481ab427a69f",
     registry = "l.gcr.io",
     repository = "google/bazel",
 )
@@ -352,8 +347,8 @@ d_repositories()
 
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "2eca5b934dee47b5ff304f502ae187c40ec4e33e12bcbce872a2eeb786e23269",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/1.4.1/rules_nodejs-1.4.1.tar.gz"],
+    sha256 = "10fffa29f687aa4d8eb6dfe8731ab5beb63811ab00981fc84a93899641fd4af1",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/2.0.3/rules_nodejs-2.0.3.tar.gz"],
 )
 
 load("@build_bazel_rules_nodejs//:index.bzl", "yarn_install")
@@ -408,11 +403,11 @@ register_execution_platforms(
 
 http_archive(
     name = "bazel_toolchains",
-    sha256 = "1342f84d4324987f63307eb6a5aac2dff6d27967860a129f5cd40f8f9b6fd7dd",
-    strip_prefix = "bazel-toolchains-2.2.0",
+    sha256 = "89a053218639b1c5e3589a859bb310e0a402dedbe4ee369560e66026ae5ef1f2",
+    strip_prefix = "bazel-toolchains-3.5.0",
     urls = [
-        "https://github.com/bazelbuild/bazel-toolchains/releases/download/2.2.0/bazel-toolchains-2.2.0.tar.gz",
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/2.2.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/releases/download/3.5.0/bazel-toolchains-3.5.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/3.5.0.tar.gz",
     ],
 )
 
@@ -452,10 +447,10 @@ srcs = glob(["**/*.py"]),
 data = ["cacerts.txt"],
 visibility = ["//visibility:public"]
 )""",
-    sha256 = "2dcbd4f20e826d6405593df8c3d6b6e4e369d57586db3ec9bbba0f0e0cdc0916",
-    strip_prefix = "httplib2-0.12.1/python2/httplib2/",
+    sha256 = "f2f35e29e99e8d9bb5921c17ede6ee10bd5bd971f2cd0b3aaaa20088754f89ba",
+    strip_prefix = "httplib2-0.18.1/python3/httplib2/",
     type = "tar.gz",
-    urls = ["https://codeload.github.com/httplib2/httplib2/tar.gz/v0.12.1"],
+    urls = ["https://codeload.github.com/httplib2/httplib2/tar.gz/v0.18.1"],
 )
 
 # Used by oauth2client
@@ -499,22 +494,6 @@ deps = [
     strip_prefix = "oauth2client-4.0.0/oauth2client/",
     type = "tar.gz",
     urls = ["https://codeload.github.com/google/oauth2client/tar.gz/v4.0.0"],
-)
-
-# Used for parallel execution in containerregistry
-# TODO(mattmoor): Is there a clean way to override?
-http_archive(
-    name = "concurrent",
-    build_file_content = """
-py_library(
-name = "concurrent",
-srcs = glob(["**/*.py"]),
-visibility = ["//visibility:public"]
-)""",
-    sha256 = "a7086ddf3c36203da7816f7e903ce43d042831f41a9705bc6b4206c574fcb765",
-    strip_prefix = "pythonfutures-3.0.5/concurrent/",
-    type = "tar.gz",
-    urls = ["https://codeload.github.com/agronholm/pythonfutures/tar.gz/3.0.5"],
 )
 
 # For kotlin image test

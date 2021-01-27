@@ -18,7 +18,10 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
-exports_files(["push-tag.sh.tpl"])
+exports_files([
+    "push-tag.bat.tpl",
+    "push-tag.sh.tpl",
+])
 
 filegroup(
     name = "incremental_load_template",
@@ -31,7 +34,7 @@ py_binary(
     name = "build_tar",
     srcs = ["build_tar.py"],
     legacy_create_init = True,
-    python_version = "PY2",
+    python_version = "PY3",
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
     deps = [":build_tar_lib"],
@@ -39,13 +42,12 @@ py_binary(
 
 py_library(
     name = "build_tar_lib",
-    srcs = ["build_tar.py"],
+    srcs = [
+        "archive.py",
+        "build_tar.py",
+    ],
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
-    deps = [
-        "@bazel_tools//third_party/py/gflags",
-        "@bazel_tools//tools/build_defs/pkg:archive",
-    ],
 )
 
 TEST_TARGETS = [
@@ -60,6 +62,7 @@ TEST_TARGETS = [
     ":files_in_layer_with_files_base",
     ":files_with_tar_base",
     ":tar_base",
+    ":tar_with_mtimes_preserved",
     ":tar_with_files_base",
     ":tar_with_tar_base",
     ":tars_in_layer_with_tar_base",
@@ -72,6 +75,7 @@ TEST_TARGETS = [
     ":with_rfc_3339_creation_time",
     ":with_stamped_creation_time",
     ":with_default_stamped_creation_time",
+    ":with_base_stamped_image",
     ":with_env",
     ":layers_with_env",
     ":with_double_env",
@@ -113,6 +117,7 @@ TEST_TARGETS = [
     ":flat",
     ":flatten_with_tarball_base",
     ":nodejs_image",
+    ":compressed_experiment",
 ]
 
 TEST_DATA = [
@@ -131,7 +136,8 @@ py_test(
     size = "medium",
     srcs = ["image_test.py"],
     data = TEST_DATA,
-    python_version = "PY2",
+    python_version = "PY3",
+    srcs_version = "PY3",
     deps = ["@containerregistry"],
 )
 
@@ -179,7 +185,6 @@ bzl_library(
         "//skylib:filetype",
         "//skylib:label",
         "//skylib:path",
-        "//skylib:zip",
         "@bazel_tools//tools/build_defs/hash:hash.bzl",
     ],
 )

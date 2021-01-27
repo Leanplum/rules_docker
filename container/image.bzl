@@ -126,9 +126,18 @@ def _add_create_image_config_args(
     args.add_all(ctx.attr.ports, before_each = "-ports")
     args.add_all(ctx.attr.volumes, before_each = "-volumes")
 
+    stamp = None
+
+    # If base image is having enabled stamping then it is propagated
+    # to child images.
+    if ctx.attr.stamp == True:
+        stamp = ctx.attr.stamp
+    elif ctx.attr.base and ImageInfo in ctx.attr.base:
+        stamp = ctx.attr.base[ImageInfo].stamp
+
     if creation_time:
         args.add("-creationTime", creation_time)
-    elif ctx.attr.stamp:
+    elif stamp:
         # If stamping is enabled, and the creation_time is not manually defined,
         # default to '{BUILD_TIMESTAMP}'.
         args.add("-creationTime", "{BUILD_TIMESTAMP}")
@@ -170,7 +179,7 @@ def _add_create_image_config_args(
     if os_version:
         args.add("-osVersion", os_version)
 
-    if ctx.attr.stamp:
+    if stamp:
         stamp_inputs = [ctx.info_file, ctx.version_file]
         args.add_all(stamp_inputs, before_each = "-stampInfoFile")
         inputs += stamp_inputs
@@ -179,7 +188,7 @@ def _add_create_image_config_args(
         fail("launcher_args does nothing when launcher is not specified.", attr = "launcher_args")
     if ctx.attr.launcher:
         args.add("-entrypointPrefix", ctx.file.launcher.basename, format = "/%s")
-        args.add_all(ctx.attr.launcher_args)
+        args.add_all(ctx.attr.launcher_args, before_each = "-entrypointPrefix")
 
 def _format_legacy_label(t):
     return ("--labels=%s=%s" % (t[0], t[1]))
@@ -221,6 +230,7 @@ def _image_config(
     args = ctx.actions.args()
     inputs = []
     executable = None
+
     _add_create_image_config_args(
         ctx,
         args,
@@ -299,6 +309,7 @@ def _impl(
         layers = None,
         compression = None,
         compression_options = None,
+        experimental_tarball_format = None,
         debs = None,
         tars = None,
         architecture = None,
@@ -307,6 +318,7 @@ def _impl(
         output_executable = None,
         output_tarball = None,
         output_config = None,
+        output_config_digest = None,
         output_digest = None,
         output_layer = None,
         workdir = None,
@@ -331,6 +343,7 @@ def _impl(
     layers: label List, overrides ctx.attr.layers
     compression: str, overrides ctx.attr.compression
     compression_options: str list, overrides ctx.attr.compression_options
+    experimental_tarball_format: str, overrides ctx.attr.experimental_tarball_format
     debs: File list, overrides ctx.files.debs
     tars: File list, overrides ctx.files.tars
     architecture: str, overrides ctx.attr.architecture
@@ -339,6 +352,7 @@ def _impl(
     output_executable: File to use as output for script to load docker image
     output_tarball: File, overrides ctx.outputs.out
     output_config: File, overrides ctx.outputs.config
+    output_config_digest: File, overrides ctx.outputs.config_digest
     output_digest: File, overrides ctx.outputs.digest
     output_layer: File, overrides ctx.outputs.layer
     workdir: str, overrides ctx.attr.workdir
@@ -351,6 +365,7 @@ def _impl(
     architecture = architecture or ctx.attr.architecture
     compression = compression or ctx.attr.compression
     compression_options = compression_options or ctx.attr.compression_options
+    experimental_tarball_format = experimental_tarball_format or ctx.attr.experimental_tarball_format
     operating_system = operating_system or ctx.attr.operating_system
     os_version = os_version or ctx.attr.os_version
     creation_time = creation_time or ctx.attr.creation_time
@@ -358,6 +373,7 @@ def _impl(
     output_tarball = output_tarball or ctx.outputs.out
     output_digest = output_digest or ctx.outputs.digest
     output_config = output_config or ctx.outputs.config
+    output_config_digest = output_config_digest or ctx.outputs.config_digest
     output_layer = output_layer or ctx.outputs.layer
     build_script = ctx.outputs.build_script
     null_cmd = null_cmd or ctx.attr.null_cmd
@@ -503,32 +519,61 @@ def _impl(
         ctx,
         images,
         output_tarball,
+        experimental_tarball_format,
     )
     _assemble_image_digest(ctx, name, container_parts, output_tarball, output_digest)
 
-    # Symlink config file for usage in structure tests
-    ln_path = config_file.path.split("/")[-1]
+    # Copy config file and its sha file for usage in tests
     ctx.actions.run_shell(
         outputs = [output_config],
         inputs = [config_file],
-        command = "ln -s %s %s" % (ln_path, output_config.path),
+        command = "cp %s %s" % (config_file.path, output_config.path),
+    )
+    ctx.actions.run_shell(
+        outputs = [output_config_digest],
+        inputs = [config_digest],
+        command = "cp %s %s" % (config_digest.path, output_config_digest.path),
     )
 
     runfiles = ctx.runfiles(
-        files = unzipped_layers + diff_ids + [config_file, config_digest] +
+        files = unzipped_layers + diff_ids + [config_file, config_digest, output_config_digest] +
                 ([container_parts["legacy"]] if container_parts["legacy"] else []),
     )
+
+    # Stamp attribute needs to be propagated between definitions to enhance actions
+    # with ability to determine properly whether root image has activated stamping.
+    #
+    # This covers the following example case:
+    # container_image(
+    #     name = “base_image”,
+    #     base = “@base//image”,
+    #     stamp = True,
+    # )
+    #
+    # lang_image(
+    #     base = “:base_image”,
+    # )
+    stamp = None
+    if ctx.attr.stamp:
+        stamp = ctx.attr.stamp
+    elif ctx.attr.base and ImageInfo in ctx.attr.base:
+        stamp = ctx.attr.base[ImageInfo].stamp
 
     return [
         ImageInfo(
             container_parts = container_parts,
             legacy_run_behavior = ctx.attr.legacy_run_behavior,
             docker_run_flags = docker_run_flags,
+            stamp = stamp,
         ),
         DefaultInfo(
             executable = build_executable,
             files = depset([output_layer]),
             runfiles = runfiles,
+        ),
+        coverage_common.instrumented_files_info(
+            ctx,
+            dependency_attributes = ["files"],
         ),
     ]
 
@@ -547,6 +592,19 @@ _attrs = dicts.add(_layer.attrs, {
     "creation_time": attr.string(),
     "docker_run_flags": attr.string(),
     "entrypoint": attr.string_list(),
+    "experimental_tarball_format": attr.string(
+        values = [
+            "legacy",
+            "compressed",
+        ],
+        default = "legacy",
+        doc = ("The tarball format to use when producing an image .tar file. " +
+               "Defaults to \"legacy\", which contains uncompressed layers. " +
+               "If set to \"compressed\", the resulting tarball will contain " +
+               "compressed layers, but is only loadable by newer versions of " +
+               "docker. This is an experimental attribute, which is subject " +
+               "to change or removal: do not depend on its exact behavior."),
+    ),
     "label_file_strings": attr.string_list(),
     # Implicit/Undocumented dependencies.
     "label_files": attr.label_list(
@@ -592,6 +650,8 @@ _outputs["out"] = "%{name}.tar"
 _outputs["digest"] = "%{name}.digest"
 
 _outputs["config"] = "%{name}.json"
+
+_outputs["config_digest"] = "%{name}.json.sha256"
 
 _outputs["build_script"] = "%{name}.executable"
 
@@ -732,6 +792,7 @@ def _validate_command(name, argument, operating_system):
 #      # Compression method and command-line options.
 #      compression = "gzip",
 #      compression_options = ["--fast"],
+#      experimental_tarball_format = "compressed",
 #   )
 
 def container_image(**kwargs):

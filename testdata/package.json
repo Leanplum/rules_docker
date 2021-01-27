@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "@bazel/typescript": "1.4.1",
-    "@types/jsesc": "2.5.0",
-    "@types/node": "12.12.35",
-    "jsesc": "2.5.2",
-    "typescript": "3.8.3"
+    "@bazel/typescript": "2.0.3",
+    "@types/jsesc": "2.5.1",
+    "@types/node": "12.12.47",
+    "jsesc": "3.0.1",
+    "typescript": "3.9.6"
   }
 }

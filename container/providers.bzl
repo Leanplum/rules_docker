@@ -27,10 +27,18 @@ ImageInfo = provider(fields = [
     "container_parts",
     "legacy_run_behavior",
     "docker_run_flags",
+    "stamp",
 ])
 
 # A provider containing information exposed by container_import rules
 ImportInfo = provider(fields = ["container_parts"])
+
+# A provider container information exposed by container_pull rules
+PullInfo = provider(fields = [
+    "base_image_registry",
+    "base_image_repository",
+    "base_image_digest",
+])
 
 # A provider containing information exposed by container_layer rules
 LayerInfo = provider(fields = [

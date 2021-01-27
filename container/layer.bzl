@@ -39,6 +39,7 @@ load(
 load(
     "//skylib:zip.bzl",
     _gzip = "gzip",
+    _zip_tools = "tools",
 )
 
 _DEFAULT_MTIME = -1
@@ -111,7 +112,8 @@ def build_layer(
         args.add(ctx.attr.mtime, format = "--mtime=%s")
     if ctx.attr.portable_mtime:
         args.add("--mtime=portable")
-
+    if ctx.attr.enable_mtime_preservation:
+        args.add("--enable_mtime_preservation=true")
     if toolchain_info.xz_path != "":
         args.add(toolchain_info.xz_path, format = "--xz_path=%s")
 
@@ -124,6 +126,10 @@ def build_layer(
     if (operating_system == "windows"):
         args.add("--root_directory=Files")
         empty_root_dirs = ["Files", "Hives"]
+    elif build_layer_exec.path.endswith(".exe"):
+        # Building on Windows, but not for Windows. Do not use the default root directory.
+        args.add("--root_directory=")
+        args.add("--force_posixpath=true")
 
     all_files = [struct(src = f.path, dst = _magic_path(ctx, f, layer)) for f in files]
     all_files += [struct(src = f.path, dst = path) for (path, f) in file_map.items()]
@@ -275,6 +281,7 @@ _layer_attrs = dicts.add({
     "empty_dirs": attr.string_list(),
     # Implicit/Undocumented dependencies.
     "empty_files": attr.string_list(),
+    "enable_mtime_preservation": attr.bool(default = False),
     "env": attr.string_dict(),
     "files": attr.label_list(allow_files = True),
     "mode": attr.string(default = "0o555"),  # 0o555 == a+rx
@@ -286,7 +293,7 @@ _layer_attrs = dicts.add({
     "portable_mtime": attr.bool(default = False),
     "symlinks": attr.string_dict(),
     "tars": attr.label_list(allow_files = tar_filetype),
-}, _hash_tools, _layer_tools)
+}, _hash_tools, _layer_tools, _zip_tools)
 
 _layer_outputs = {
     "layer": "%{name}-layer.tar",

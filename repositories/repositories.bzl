@@ -24,50 +24,82 @@ load(
 )
 
 # The release of the github.com/google/containerregistry to consume.
-CONTAINERREGISTRY_RELEASE = "v0.0.36"
-RULES_DOCKER_GO_BINARY_RELEASE = "66e5e1a894eda961a35c024db6ce91d31008c1e9"
+CONTAINERREGISTRY_RELEASE = "v0.0.38"
+RULES_DOCKER_GO_BINARY_RELEASE = "aad94363e63d31d574cf701df484b3e8b868a96a"
 
 def repositories():
     """Download dependencies of container rules."""
     excludes = native.existing_rules().keys()
 
     # Go binaries.
-    if "go_puller_linux" not in excludes:
+    if "go_puller_linux_amd64" not in excludes:
         http_file(
-            name = "go_puller_linux",
+            name = "go_puller_linux_amd64",
             executable = True,
-            sha256 = "1af92327e21eff7630bc38e33bf82ec01c5db9a64b61ad8ebe0f90c774076d74",
+            sha256 = "08b8963cce9234f57055bafc7cadd1624cdce3c5990048cea1df453d7d288bc6",
             urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-amd64")],
+        )
+
+    if "go_puller_linux_arm64" not in excludes:
+        http_file(
+            name = "go_puller_linux_arm64",
+            executable = True,
+            sha256 = "912ee7c469b3e4bf15ba5d1f0ee500e7ec6724518862703fa8b09e4d58ce3ee6",
+            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-arm64")],
+        )
+
+    if "go_puller_linux_s390x" not in excludes:
+        http_file(
+            name = "go_puller_linux_s390x",
+            executable = True,
+            sha256 = "a5527b7b3b4a266e4680a4ad8939429665d4173f26b35d5d317385134369e438",
+            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-s390x")],
         )
 
     if "go_puller_darwin" not in excludes:
         http_file(
             name = "go_puller_darwin",
             executable = True,
-            sha256 = "34aa3e299c806ce59a012bd1b3a245e25807988e5475189d2edc075163b47dad",
+            sha256 = "4855c4f5927f8fb0f885510ab3e2a166d5fa7cde765fbe9aec97dc6b2761bb22",
             urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-darwin-amd64")],
         )
 
-    if "loader_linux" not in excludes:
+    if "loader_linux_amd64" not in excludes:
         http_file(
-            name = "loader_linux",
+            name = "loader_linux_amd64",
             executable = True,
-            sha256 = "8566ab69573d4196f57e2d7303e341e813920d966b445ac6c86f091a2c91c368",
+            sha256 = "5e5ada66beff07f9188bdc1f99c3fa37c407fc0048cd78b9c2047e9c5516f20b",
             urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-amd64")],
+        )
+
+    if "loader_linux_arm64" not in excludes:
+        http_file(
+            name = "loader_linux_arm64",
+            executable = True,
+            sha256 = "a80966d17b25dbc9313e9fc1cae74ded5916fa64dba0d33438c8adad338b44d3",
+            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-arm64")],
+        )
+
+    if "loader_linux_s390x" not in excludes:
+        http_file(
+            name = "loader_linux_s390x",
+            executable = True,
+            sha256 = "0c0ebc3e0a502542547a38b51f4686a049897eeb4cbc0e2f07fc25276c57866f",
+            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-s390x")],
         )
 
     if "loader_darwin" not in excludes:
         http_file(
             name = "loader_darwin",
             executable = True,
-            sha256 = "bc27e7b202fb2e1b8cb960f4752713a53f239069320c77b1f428bb7a658c6a7b",
+            sha256 = "8c9986b2b506febbff737090d9ec485cec1376c52789747573521a85194341c1",
             urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-darwin-amd64")],
         )
 
     if "containerregistry" not in excludes:
         http_archive(
             name = "containerregistry",
-            sha256 = "a8cdf2452323e0fefa4edb01c08b2ec438c9fa3192bc9f408b89287598c12abc",
+            sha256 = "a0c01fcc11db848212f8b11d89df168361f99a31eb7373ff60ce50c5d05cd74b",
             strip_prefix = "containerregistry-" + CONTAINERREGISTRY_RELEASE[1:],
             urls = [("https://github.com/google/containerregistry/archive/" +
                      CONTAINERREGISTRY_RELEASE + ".tar.gz")],
@@ -79,18 +111,17 @@ def repositories():
     if "io_bazel_rules_go" not in excludes:
         http_archive(
             name = "io_bazel_rules_go",
-            sha256 = "7b9bbe3ea1fccb46dcfa6c3f3e29ba7ec740d8733370e21cdc8937467b4a4349",
+            sha256 = "08c3cd71857d58af3cda759112437d9e63339ac9c6e0042add43f4d94caf632d",
             urls = [
-                "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.22.4/rules_go-v0.22.4.tar.gz",
-                "https://github.com/bazelbuild/rules_go/releases/download/v0.22.4/rules_go-v0.22.4.tar.gz",
+                "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.24.2/rules_go-v0.24.2.tar.gz",
+                "https://github.com/bazelbuild/rules_go/releases/download/v0.24.2/rules_go-v0.24.2.tar.gz",
             ],
         )
     if "rules_python" not in excludes:
         http_archive(
             name = "rules_python",
-            sha256 = "0aa9ec790a58053e3ab5af397879b267a625955f8297c239b2d8559c6773397b",
-            strip_prefix = "rules_python-dd7f9c5f01bafbfea08c44092b6b0c8fc8fcb77f",
-            urls = ["https://github.com/bazelbuild/rules_python/archive/dd7f9c5f01bafbfea08c44092b6b0c8fc8fcb77f.tar.gz"],
+            url = "https://github.com/bazelbuild/rules_python/releases/download/0.1.0/rules_python-0.1.0.tar.gz",
+            sha256 = "b6d46438523a3ec0f3cead544190ee13223a52f6a6765a29eae7b7cc24cc83a0",
         )
 
     # For packaging python tools.
@@ -107,16 +138,24 @@ def repositories():
         http_file(
             name = "structure_test_linux",
             executable = True,
-            sha256 = "cfdfedd77c04becff0ea16a4b8ebc3b57bf404c56e5408b30d4fbb35853db67c",
-            urls = ["https://storage.googleapis.com/container-structure-test/v1.8.0/container-structure-test-linux-amd64"],
+            sha256 = "9ddc0791491dc8139af5af4d894e48db4eeaca4b2cb9196293efd615bdb79122",
+            urls = ["https://storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-linux-amd64"],
+        )
+
+    if "structure_test_linux_aarch64" not in excludes:
+        http_file(
+            name = "structure_test_linux_aarch64",
+            executable = True,
+            sha256 = "b8fd54ed5f3fcb65861dec8aea5ccf05856c9e030a67461e601eab64c1fe70b1",
+            urls = ["https://storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-linux-arm64"],
         )
 
     if "structure_test_darwin" not in excludes:
         http_file(
             name = "structure_test_darwin",
             executable = True,
-            sha256 = "14e94f75112a8e1b08a2d10f2467d27db0b94232a276ddd1e1512593a7b7cf5a",
-            urls = ["https://storage.googleapis.com/container-structure-test/v1.8.0/container-structure-test-darwin-amd64"],
+            sha256 = "0b8c019b5a3df1a84515b75c2eb47aaf9db51dec621a39d1c4fa31a4a8f6c855",
+            urls = ["https://storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-darwin-amd64"],
         )
 
     if "container_diff" not in excludes:
@@ -139,8 +178,15 @@ def repositories():
     if "bazel_gazelle" not in excludes:
         http_archive(
             name = "bazel_gazelle",
-            sha256 = "d8c45ee70ec39a57e7a05e5027c32b1576cc7f16d9dd37135b0eddde45cf1b10",
-            urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.20.0/bazel-gazelle-v0.20.0.tar.gz"],
+            sha256 = "cdb02a887a7187ea4d5a27452311a75ed8637379a1287d8eeb952138ea485f7d",
+            urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.21.1/bazel-gazelle-v0.21.1.tar.gz"],
+        )
+
+    if "rules_pkg" not in excludes:
+        http_archive(
+            name = "rules_pkg",
+            sha256 = "aeca78988341a2ee1ba097641056d168320ecc51372ef7ff8e64b139516a4937",
+            urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/0.2.6-1/rules_pkg-0.2.6.tar.gz"],
         )
 
     native.register_toolchains(

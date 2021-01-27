@@ -19,7 +19,7 @@ load(
     _hash_tools = "tools",
     _sha256 = "sha256",
 )
-load("@io_bazel_rules_docker//container:providers.bzl", "ImportInfo")
+load("@io_bazel_rules_docker//container:providers.bzl", "ImportInfo", "PullInfo")
 load(
     "//container:layer_tools.bzl",
     _assemble_image = "assemble",
@@ -39,6 +39,7 @@ load(
     "//skylib:zip.bzl",
     _gunzip = "gunzip",
     _gzip = "gzip",
+    _zip_tools = "tools",
 )
 
 def _is_filetype(filename, extensions):
@@ -124,6 +125,10 @@ def _container_import_impl(ctx):
         ctx,
         images,
         ctx.outputs.out,
+        # Experiment: currently only support experimental_tarball_format in
+        # container_image for testing optimization.
+        # TODO(#1695): Update this.
+        "legacy",
     )
 
     runfiles = ctx.runfiles(
@@ -143,7 +148,15 @@ def _container_import_impl(ctx):
                 ]),
             ),
         )
-
+    pull_info = []
+    if (ctx.attr.base_image_registry and ctx.attr.base_image_repository and ctx.attr.base_image_digest):
+        pull_info = [
+            PullInfo(
+                base_image_registry = ctx.attr.base_image_registry,
+                base_image_repository = ctx.attr.base_image_repository,
+                base_image_digest = ctx.attr.base_image_digest,
+            ),
+        ]
     return [
         ImportInfo(
             container_parts = container_parts,
@@ -153,10 +166,13 @@ def _container_import_impl(ctx):
             files = depset([ctx.outputs.out]),
             runfiles = runfiles,
         ),
-    ]
+    ] + pull_info
 
 container_import = rule(
     attrs = dicts.add({
+        "base_image_digest": attr.string(doc = "The digest of the image"),
+        "base_image_registry": attr.string(doc = "The registry from which we pulled the image"),
+        "base_image_repository": attr.string(doc = "The repository from which we pulled the image"),
         "config": attr.label(allow_files = [".json"]),
         "layers": attr.label_list(
             allow_files = tar_filetype + tgz_filetype,
@@ -167,7 +183,7 @@ container_import = rule(
             mandatory = False,
         ),
         "repository": attr.string(default = "bazel"),
-    }, _hash_tools, _layer_tools),
+    }, _hash_tools, _layer_tools, _zip_tools),
     executable = True,
     outputs = {
         "out": "%{name}.tar",

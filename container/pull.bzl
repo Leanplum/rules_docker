@@ -65,9 +65,21 @@ _container_pull_attrs = {
         cfg = "host",
         doc = "(optional) Exposed to provide a way to test other pullers on macOS",
     ),
-    "puller_linux": attr.label(
+    "puller_linux_amd64": attr.label(
         executable = True,
-        default = Label("@go_puller_linux//file:downloaded"),
+        default = Label("@go_puller_linux_amd64//file:downloaded"),
+        cfg = "host",
+        doc = "(optional) Exposed to provide a way to test other pullers on Linux",
+    ),
+    "puller_linux_arm64": attr.label(
+        executable = True,
+        default = Label("@go_puller_linux_arm64//file:downloaded"),
+        cfg = "host",
+        doc = "(optional) Exposed to provide a way to test other pullers on Linux",
+    ),
+    "puller_linux_s390x": attr.label(
+        executable = True,
+        default = Label("@go_puller_linux_s390x//file:downloaded"),
         cfg = "host",
         doc = "(optional) Exposed to provide a way to test other pullers on Linux",
     ),
@@ -92,23 +104,20 @@ def _impl(repository_ctx):
     # Add an empty top-level BUILD file.
     repository_ctx.file("BUILD", "")
 
+    # Creating this empty just so `image` subfolder would exist
+    repository_ctx.file("image/BUILD", "")
+
     import_rule_tags = "[\"{}\"]".format("\", \"".join(repository_ctx.attr.import_tags))
-    repository_ctx.file("image/BUILD", """package(default_visibility = ["//visibility:public"])
-load("@io_bazel_rules_docker//container:import.bzl", "container_import")
 
-container_import(
-    name = "image",
-    config = "config.json",
-    layers = glob(["*.tar.gz"]),
-    tags = {tags},
-)
-
-exports_files(["image.digest", "digest"])
-""".format(tags = import_rule_tags))
-
-    puller = repository_ctx.attr.puller_linux
+    puller = repository_ctx.attr.puller_linux_amd64
     if repository_ctx.os.name.lower().startswith("mac os"):
         puller = repository_ctx.attr.puller_darwin
+    elif repository_ctx.os.name.lower().startswith("linux"):
+        arch = repository_ctx.execute(["uname", "-m"]).stdout.strip()
+        if arch == "arm64" or arch == "aarch64":
+            puller = repository_ctx.attr.puller_linux_arm64
+        elif arch == "s390x":
+            puller = repository_ctx.attr.puller_linux_s390x
 
     args = [
         repository_ctx.path(puller),
@@ -165,10 +174,15 @@ exports_files(["image.digest", "digest"])
     kwargs = {}
 
     if "PULLER_TIMEOUT" in repository_ctx.os.environ:
-        args += [
-            "-timeout",
-            repository_ctx.os.environ.get("PULLER_TIMEOUT"),
-        ]
+        timeout_in_secs = repository_ctx.os.environ["PULLER_TIMEOUT"]
+        if timeout_in_secs.isdigit():
+            args += [
+                "-timeout",
+                timeout_in_secs,
+            ]
+            kwargs["timeout"] = int(timeout_in_secs)
+        else:
+            fail("'%s' is invalid value for PULLER_TIMEOUT. Must be an integer." % (timeout_in_secs))
 
     result = repository_ctx.execute(args, **kwargs)
     if result.return_code:
@@ -180,10 +194,7 @@ exports_files(["image.digest", "digest"])
     }
     updated_attrs["name"] = repository_ctx.name
 
-    digest_result = repository_ctx.execute(["cat", repository_ctx.path("image/digest")])
-    if digest_result.return_code:
-        fail("Failed to read digest: %s" % digest_result.stderr)
-    updated_attrs["digest"] = digest_result.stdout
+    updated_attrs["digest"] = repository_ctx.read(repository_ctx.path("image/digest"))
 
     if repository_ctx.attr.digest and repository_ctx.attr.digest != updated_attrs["digest"]:
         fail(("SHA256 of the image specified does not match SHA256 of the pulled image. " +
@@ -199,6 +210,26 @@ exports_files(["image.digest", "digest"])
     # foo.digest for an image named foo.
     repository_ctx.symlink(repository_ctx.path("image/digest"), repository_ctx.path("image/image.digest"))
 
+    repository_ctx.file("image/BUILD", """package(default_visibility = ["//visibility:public"])
+load("@io_bazel_rules_docker//container:import.bzl", "container_import")
+
+container_import(
+    name = "image",
+    config = "config.json",
+    layers = glob(["*.tar.gz"]),
+    base_image_registry = "{registry}",
+    base_image_repository = "{repository}",
+    base_image_digest = "{digest}",
+    tags = {tags},
+)
+
+exports_files(["image.digest", "digest"])
+""".format(
+        registry = updated_attrs["registry"],
+        repository = updated_attrs["repository"],
+        digest = updated_attrs["digest"],
+        tags = import_rule_tags,
+    ))
     return updated_attrs
 
 pull = struct(

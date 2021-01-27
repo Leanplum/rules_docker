@@ -83,7 +83,7 @@ compare_ids_fail_test(
 compare_ids_fail_test(
     name = "test_compare_ids_test_one_tar_no_id_fails",
     images = ["@distroless_fixed_id//image"],
-    reg_exps = [".*One tar provided\. Need either second tar or an id to compare it to\..*"],
+    reg_exps = [".*One tar provided\\. Need either second tar or an id to compare it to\\..*"],
 )
 
 compare_ids_fail_test(
@@ -103,7 +103,7 @@ compare_ids_fail_test(
     name = "test_compare_ids_test_invalid_tar_fails",
     id = "some_id",
     images = ["invalid.tar"],
-    reg_exps = [".*Unable to extract manifest\.json, make sure .* is a valid docker image.*"],
+    reg_exps = [".*Unable to extract manifest\\.json, make sure .* is a valid docker image.*"],
 )
 
 compare_ids_fail_test(
@@ -122,7 +122,7 @@ compare_ids_fail_test(
         "invalid.tar",
     ],
     reg_exps = [
-        ".*Unable to extract manifest\.json, make sure .* is a valid docker image.*",
+        ".*Unable to extract manifest\\.json, make sure .* is a valid docker image.*",
         ".*FAILED.*",
     ],
 )
@@ -163,7 +163,7 @@ container_repro_test(
 
 container_repro_test(
     name = "derivative_with_volume_repro_test",
-    base = "@bazel_2000//image",
+    base = "@bazel_320//image",
     container_diff_args = [
         "history",
         "file",

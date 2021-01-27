@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@io_bazel_rules_docker_pip_deps//:requirements.bzl", "requirement")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary")
-load("@npm_bazel_typescript//:index.bzl", "ts_library")
-load("@pip_deps//:requirements.bzl", "requirement")
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
 load("//cc:image.bzl", "cc_image")
 load(
     "//container:container.bzl",
@@ -162,6 +163,13 @@ container_image(
 )
 
 container_image(
+    name = "tar_with_mtimes_preserved",
+    base = ":tar_base",
+    enable_mtime_preservation = True,
+    tars = ["two.tar"],
+)
+
+container_image(
     name = "tar_with_tar_base",
     base = ":tar_base",
     tars = ["two.tar"],
@@ -285,7 +293,7 @@ container_image(
 # py_binary(
 #     name = "extras_gen",
 #     srcs = ["extras_gen.py"],
-#     deps = ["@bazel_tools//tools/build_defs/pkg:archive"],
+#     deps = ["//container:build_tar_lib"],
 # )
 
 # genrule(
@@ -327,6 +335,11 @@ container_image(
     base = ":base_with_volume",
     creation_time = "{BUILD_TIMESTAMP}",
     stamp = True,
+)
+
+container_image(
+    name = "with_base_stamped_image",
+    base = ":with_stamped_creation_time",
 )
 
 container_image(
@@ -508,7 +521,8 @@ container_bundle(
 py_binary(
     name = "gen_deb",
     srcs = ["gen_deb.py"],
-    python_version = "PY2",
+    python_version = "PY3",
+    srcs_version = "PY2AND3",
 )
 
 generate_deb(
@@ -708,20 +722,11 @@ py_image(
     ],
 )
 
-py_image(
-    name = "py_image_with_main",
-    srcs = ["py_image.py"],
-    layers = [
-        "//tests/container/python:py_image_library",
-    ],
-    main = "py_image.py",
-)
-
 rule_with_symlinks(
     name = "data_with_symlinks",
 )
 
-py_image(
+py3_image(
     name = "py_image_with_symlinks_in_data",
     srcs = ["py_image.py"],
     data = [
@@ -743,6 +748,7 @@ py_library(
 py_library(
     name = "py_image_complex_library",
     srcs = ["py_image_complex_library.py"],
+    srcs_version = "PY2AND3",
     deps = [
         ":py_image_library_using_six",
         "//testdata/test:py_image_library_using_addict",
@@ -767,7 +773,7 @@ py_layer(
     deps = [":py_image_complex_library"],
 )
 
-py_image(
+py3_image(
     name = "py_image_complex",
     srcs = ["py_image_complex.py"],
     layers = [
@@ -946,7 +952,7 @@ container_image(
     name = "launcher_image",
     base = "//tests/container/go:go_image",
     launcher = ":launcher",
-    launcher_args = ["-env=CUSTOM_MESSAGE=Launched via launcher!"],
+    launcher_args = ["-env-append=CUSTOM_MESSAGE=Launched via launcher!"],
     legacy_run_behavior = False,
 )
 
@@ -1052,6 +1058,12 @@ container_image(
     files = [":foo"],
 )
 
+container_image(
+    name = "compressed_experiment",
+    experimental_tarball_format = "compressed",
+    files = [":foo"],
+)
+
 # push_compression* are built but not executed. This is because building a
 # `container_push` appears to be the only way to generated the compressed
 # tarball.
@@ -1073,4 +1085,16 @@ container_push(
     repository = "docker/test/{BUILD_USER}",
     tag = "{BUILD_USER}",
     tags = ["manual"],
+)
+
+bzl_library(
+    name = "stamp_info_bzl",
+    srcs = ["stamp_info.bzl"],
+    visibility = ["//visibility:private"],
+)
+
+bzl_library(
+    name = "utils_bzl",
+    srcs = ["utils.bzl"],
+    visibility = ["//visibility:private"],
 )

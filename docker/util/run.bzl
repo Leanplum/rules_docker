@@ -266,6 +266,8 @@ _commit_attrs = {
         allow_files = True,
     ),
 }
+
+# @unsorted-dict-items
 _commit_outputs = {
     "out": "%{name}_commit.tar",
     "build": "%{name}.build",

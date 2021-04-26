@@ -45,12 +45,6 @@ registry interactions.
 
 ## Language Rules
 
-Note: Some of these rules are not supported on Mac. Specifically `go_image`
-cannot be used from Bazel running on a Mac. Other rules may also fail
-arbitrarily on Mac due to unforeseen toolchain issues that need to be resolved in
-Bazel and upstream rules repos. Please see [#943](https://github.com/bazelbuild/rules_docker/issues/943)
-for more details.
-
 * [py_image](#py_image) ([signature](
 https://docs.bazel.build/versions/master/be/python.html#py_binary))
 * [py3_image](#py3_image) ([signature](
@@ -949,7 +943,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # You *must* import the Rust rules before setting up the rust_image rules.
 http_archive(
-    name = "io_bazel_rules_rust",
+    name = "rules_rust",
     # Replace with a real SHA256 checksum
     sha256 = "{SHA256}"
     # Replace with a real commit SHA
@@ -957,7 +951,7 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_rust/archive/{HEAD}.tar.gz"],
 )
 
-load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
+load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 rust_repositories()
 
@@ -2371,6 +2365,7 @@ Here's a (non-exhaustive) list of companies that use `rules_docker` in productio
   * [Amaiz](https://github.com/amaizfinance)
   * [Aura Devices](https://auradevices.io/)
   * [Button](https://usebutton.com)
+  * [Domino Data Lab](https://www.dominodatalab.com/)
   * [Canva](https://canva.com)
   * [Etsy](https://www.etsy.com)
   * [Evertz](https://evertz.com/)

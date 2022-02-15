@@ -267,7 +267,7 @@ def incremental_load(
                 # Turn stamp variable references into bash variables.
                 # It is notable that the only legal use of '{' in a
                 # tag would be for stamp variables, '$' is not allowed.
-                tag_reference,
+                tag_reference.lower(),
                 _get_runfile_path(ctx, image["config_digest"]),
             ),
         )

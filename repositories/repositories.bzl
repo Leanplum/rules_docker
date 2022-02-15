@@ -170,9 +170,11 @@ def repositories():
     if "bazel_skylib" not in excludes:
         http_archive(
             name = "bazel_skylib",
-            sha256 = "7ac0fa88c0c4ad6f5b9ffb5e09ef81e235492c873659e6bb99efb89d11246bcb",
-            strip_prefix = "bazel-skylib-1.0.3",
-            urls = ["https://github.com/bazelbuild/bazel-skylib/archive/1.0.3.tar.gz"],
+            urls = [
+                "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+                "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+            ],
+            sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
         )
 
     if "bazel_gazelle" not in excludes:
@@ -201,15 +203,3 @@ def repositories():
         # Automatically configure the docker toolchain rule to use the default
         # docker binary from the system path
         _docker_toolchain_configure(name = "docker_config")
-
-    # For API documentation generation
-    if "io_bazel_stardoc" not in excludes:
-        http_archive(
-            name = "io_bazel_stardoc",
-            patches = [],
-            sha256 = "f89bda7b6b696c777b5cf0ba66c80d5aa97a6701977d43789a9aee319eef71e8",
-            strip_prefix = "stardoc-d93ee5347e2d9c225ad315094507e018364d5a67",
-            urls = [
-                "https://github.com/bazelbuild/stardoc/archive/d93ee5347e2d9c225ad315094507e018364d5a67.tar.gz",
-            ],
-        )

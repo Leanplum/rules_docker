@@ -235,6 +235,7 @@ def incremental_load(
 
     # TODO(mattmoor): Consider adding cleanup_statements.
     for tag in images:
+        tag = tag.lower()
         image = images[tag]
 
         # First load the legacy base image, if it exists.
@@ -267,7 +268,7 @@ def incremental_load(
                 # Turn stamp variable references into bash variables.
                 # It is notable that the only legal use of '{' in a
                 # tag would be for stamp variables, '$' is not allowed.
-                tag_reference.lower(),
+                tag_reference,
                 _get_runfile_path(ctx, image["config_digest"]),
             ),
         )

@@ -235,8 +235,8 @@ def incremental_load(
 
     # TODO(mattmoor): Consider adding cleanup_statements.
     for tag in images:
-        tag = tag.lower()
         image = images[tag]
+        tag = tag.lower()
 
         # First load the legacy base image, if it exists.
         if image.get("legacy"):

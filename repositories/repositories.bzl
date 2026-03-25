@@ -37,7 +37,7 @@ def repositories():
             name = "go_puller_linux_amd64",
             executable = True,
             sha256 = "08b8963cce9234f57055bafc7cadd1624cdce3c5990048cea1df453d7d288bc6",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-amd64")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-amd64")],
         )
 
     if "go_puller_linux_arm64" not in excludes:
@@ -45,7 +45,7 @@ def repositories():
             name = "go_puller_linux_arm64",
             executable = True,
             sha256 = "912ee7c469b3e4bf15ba5d1f0ee500e7ec6724518862703fa8b09e4d58ce3ee6",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-arm64")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-arm64")],
         )
 
     if "go_puller_linux_s390x" not in excludes:
@@ -53,7 +53,7 @@ def repositories():
             name = "go_puller_linux_s390x",
             executable = True,
             sha256 = "a5527b7b3b4a266e4680a4ad8939429665d4173f26b35d5d317385134369e438",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-s390x")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-linux-s390x")],
         )
 
     if "go_puller_darwin" not in excludes:
@@ -61,7 +61,7 @@ def repositories():
             name = "go_puller_darwin",
             executable = True,
             sha256 = "4855c4f5927f8fb0f885510ab3e2a166d5fa7cde765fbe9aec97dc6b2761bb22",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-darwin-amd64")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/puller-darwin-amd64")],
         )
 
     if "loader_linux_amd64" not in excludes:
@@ -69,7 +69,7 @@ def repositories():
             name = "loader_linux_amd64",
             executable = True,
             sha256 = "5e5ada66beff07f9188bdc1f99c3fa37c407fc0048cd78b9c2047e9c5516f20b",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-amd64")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-amd64")],
         )
 
     if "loader_linux_arm64" not in excludes:
@@ -77,7 +77,7 @@ def repositories():
             name = "loader_linux_arm64",
             executable = True,
             sha256 = "a80966d17b25dbc9313e9fc1cae74ded5916fa64dba0d33438c8adad338b44d3",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-arm64")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-arm64")],
         )
 
     if "loader_linux_s390x" not in excludes:
@@ -85,7 +85,7 @@ def repositories():
             name = "loader_linux_s390x",
             executable = True,
             sha256 = "0c0ebc3e0a502542547a38b51f4686a049897eeb4cbc0e2f07fc25276c57866f",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-s390x")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-linux-s390x")],
         )
 
     if "loader_darwin" not in excludes:
@@ -93,7 +93,7 @@ def repositories():
             name = "loader_darwin",
             executable = True,
             sha256 = "8c9986b2b506febbff737090d9ec485cec1376c52789747573521a85194341c1",
-            urls = [("https://storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-darwin-amd64")],
+            urls = [("https://mirror.bazel.build/storage.googleapis.com/rules_docker/" + RULES_DOCKER_GO_BINARY_RELEASE + "/loader-darwin-amd64")],
         )
 
     if "containerregistry" not in excludes:
@@ -113,7 +113,7 @@ def repositories():
             name = "io_bazel_rules_go",
             sha256 = "08c3cd71857d58af3cda759112437d9e63339ac9c6e0042add43f4d94caf632d",
             urls = [
-                "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.24.2/rules_go-v0.24.2.tar.gz",
+                "https://mirror.bazel.build/storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.24.2/rules_go-v0.24.2.tar.gz",
                 "https://github.com/bazelbuild/rules_go/releases/download/v0.24.2/rules_go-v0.24.2.tar.gz",
             ],
         )
@@ -139,7 +139,7 @@ def repositories():
             name = "structure_test_linux",
             executable = True,
             sha256 = "9ddc0791491dc8139af5af4d894e48db4eeaca4b2cb9196293efd615bdb79122",
-            urls = ["https://storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-linux-amd64"],
+            urls = ["https://mirror.bazel.build/storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-linux-amd64"],
         )
 
     if "structure_test_linux_aarch64" not in excludes:
@@ -147,7 +147,7 @@ def repositories():
             name = "structure_test_linux_aarch64",
             executable = True,
             sha256 = "b8fd54ed5f3fcb65861dec8aea5ccf05856c9e030a67461e601eab64c1fe70b1",
-            urls = ["https://storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-linux-arm64"],
+            urls = ["https://mirror.bazel.build/storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-linux-arm64"],
         )
 
     if "structure_test_darwin" not in excludes:
@@ -155,7 +155,7 @@ def repositories():
             name = "structure_test_darwin",
             executable = True,
             sha256 = "0b8c019b5a3df1a84515b75c2eb47aaf9db51dec621a39d1c4fa31a4a8f6c855",
-            urls = ["https://storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-darwin-amd64"],
+            urls = ["https://mirror.bazel.build/storage.googleapis.com/container-structure-test/v1.9.1/container-structure-test-darwin-amd64"],
         )
 
     if "container_diff" not in excludes:
@@ -163,7 +163,7 @@ def repositories():
             name = "container_diff",
             executable = True,
             sha256 = "65b10a92ca1eb575037c012c6ab24ae6fe4a913ed86b38048781b17d7cf8021b",
-            urls = ["https://storage.googleapis.com/container-diff/v0.15.0/container-diff-linux-amd64"],
+            urls = ["https://mirror.bazel.build/storage.googleapis.com/container-diff/v0.15.0/container-diff-linux-amd64"],
         )
 
     # For bzl_library.
